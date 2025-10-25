@@ -1,0 +1,17 @@
+# Ignore embedded indexes & user data
+data/raw_pdfs/
+data/indexes/
+data/cache/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environments
+env/
+venv/
+.venv/
+
+# Config / secrets
+.env
+*.env
