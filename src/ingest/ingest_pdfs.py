@@ -18,7 +18,7 @@ def load_and_split_pdfs():
     for file_name in os.listdir(DATA_DIR):
         if file_name.endswith(".pdf"):
             file_path = os.path.join(DATA_DIR, file_name)
-            print(f"📄 Loading: {file_name}")
+            print(f"Loading: {file_name}")
             loader = PyPDFLoader(file_path)
             docs = loader.load()
             documents.extend(docs)
