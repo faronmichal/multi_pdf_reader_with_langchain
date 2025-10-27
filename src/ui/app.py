@@ -2,70 +2,103 @@ import streamlit as st
 from pathlib import Path
 from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 
+# path
 ROOT_DIR = Path(__file__).resolve().parents[2]
 INDEX_DIR = ROOT_DIR / "data" / "indexes"
 
-embeddings = OpenAIEmbeddings()
-vectorstore = FAISS.load_local(
-    INDEX_DIR,
-    embeddings,
-    allow_dangerous_deserialization=True
-)
-retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+# load index function
+def load_vectorstore():
+    embeddings = OpenAIEmbeddings()
+    return FAISS.load_local(INDEX_DIR, embeddings, allow_dangerous_deserialization=True)
 
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+# add new pdf file
+def add_pdf_to_index(uploaded_file):
+    # temporary pdf file save
+    temp_pdf_path = Path("temp_uploaded.pdf")
+    with open(temp_pdf_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
 
-template = """
-You are a helpful assistant answering questions **only** using information from the provided text context.
-If the answer is not clearly stated in the context, reply exactly with:
-"I don't know based on the documents."
+    loader = PyPDFLoader(str(temp_pdf_path))
+    docs = loader.load()
 
-Context:
-{context}
+    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+    chunks = splitter.split_documents(docs)
 
-Question:
-{question}
+    embeddings = OpenAIEmbeddings()
+    new_store = FAISS.from_documents(chunks, embeddings)
 
-Answer:
-"""
+    try:
+        existing_store = load_vectorstore()
+        existing_store.merge_from(new_store)
+        existing_store.save_local(INDEX_DIR)
+    except:
+        # make new index if it doesn't exist
+        new_store.save_local(INDEX_DIR)
 
-prompt = PromptTemplate(
-    template=template,
-    input_variables=["context", "question"],
-)
+    temp_pdf_path.unlink()  # delete temporary file
 
-qa = RetrievalQA.from_chain_type(
-    llm=llm,
-    chain_type="stuff",
-    retriever=retriever,
-    chain_type_kwargs={"prompt": prompt},
-    return_source_documents=True
-)
+# loading index to qa
+def build_qa():
+    vectorstore = load_vectorstore()
+    retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
 
-def answer_question(q):
-    response = qa.invoke(q)
+    template = """
+    You are a helpful assistant answering questions **only** using information from the provided text context.
+    If the answer is not clearly stated in the context, reply exactly with:
+    "I don't know based on the documents."
+
+    Context:
+    {context}
+
+    Question:
+    {question}
+
+    Answer:
+    """
+
+    prompt = PromptTemplate(template=template, input_variables=["context", "question"])
+
+    return RetrievalQA.from_chain_type(
+        llm=llm,
+        chain_type="stuff",
+        retriever=retriever,
+        chain_type_kwargs={"prompt": prompt},
+        return_source_documents=True
+    )
+
+# ui start
+st.set_page_config(page_title="PDF research assistant", page_icon="📄")
+st.title("PDF research assistant")
+
+# upload
+uploaded = st.file_uploader("Upload PDF", type=["pdf"])
+if uploaded:
+    add_pdf_to_index(uploaded)
+    st.success("PDF was added to the data")
+
+qa = build_qa()
+
+# chat
+query = st.text_input("Ask a question:")
+if query:
+    response = qa.invoke(query)
     answer = response["result"]
     sources = response["source_documents"]
-    return answer, sources
 
-st.set_page_config(page_title="Multi-PDF Research Assistant", page_icon="📚")
-st.title("Document Research Assistant")
-
-query = st.text_input("Ask a question:")
-
-if query:
-    answer, sources = answer_question(query)
     st.write("Answer:")
     st.write(answer)
 
     if answer.strip() != "I don't know based on the documents.":
         st.write("Sources:")
         for s in sources:
-            source_name = s.metadata.get("source", "unknown file")
+            name = s.metadata.get("source", "nieznany plik")
             page = s.metadata.get("page", "?")
-            st.write(f"- **{source_name}** (page {page})")
+            st.write(f"- **{name}** (strona {page})")
     else:
-        st.write("No sources found in the documents.")
+        st.write("No data in the documents.")
