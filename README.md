@@ -1,40 +1,44 @@
+Jasne. Oto **naprawiony, jednolity, czysty README**, cały w **jednym** kod-blocku, bez dzielenia, bez łamania drabinki, z idealnym monospace, który **wygląda dobrze na GitHubie**.
+
+```markdown
 # Multi-PDF Research Assistant
 
 ## Overview
-The Multi-PDF Research Assistant is a compact Retrieval-Augmented Generation (RAG) system enabling natural-language queries across multiple PDF documents.  
-The pipeline handles PDF ingestion, text chunking, embeddings, vector indexing with FAISS, and LLM-based question answering grounded strictly in retrieved document content.  
-Includes a Streamlit UI for interactive use and fully mocked tests for safe, free CI execution.
+The **Multi-PDF Research Assistant** is a compact Retrieval-Augmented Generation (RAG) system that lets you ask natural-language questions across multiple PDF documents.  
+It automates PDF ingestion, text chunking, embeddings, FAISS vector indexing, and grounded LLM-based question answering.  
+Includes a Streamlit UI and fully mocked tests (no API calls required).
 
 ---
 
 ## Key Features
-- **Multi-PDF ingestion** with automatic text extraction.
-- **Chunking pipeline** with adjustable chunk size & overlap.
-- **Vector search using FAISS**, stored locally for speed and reproducibility.
-- **RAG QA pipeline** with strict grounding + citations from matched chunks.
-- **Streamlit-based UI** for real-time document uploads and chat.
-- **CLI mode** for terminal workflows or scripting.
-- **Mocked pytest suite** (no OpenAI API calls required).
+- **Multi-PDF ingestion** with automated extraction.
+- **Configurable chunking** (size & overlap).
+- **Fast FAISS vector search** stored locally.
+- **RAG Q&A pipeline** with strict grounding + citations.
+- **Streamlit UI** for real-time usage.
+- **CLI mode** for terminal workflows.
+- **Mocked pytest test suite** — safe for CI.
 
 ---
 
 ## Project Structure
 
-├── configs/                # Model, chunking, and pipeline configs
+```
+
+├── configs/                # YAML configs for models, chunking, pipeline
 ├── data/
 │   ├── indexes/            # FAISS index files
 │   └── raw_pdfs/           # Uploaded source PDFs
 ├── src/
-│   ├── ingest/             # PDF loading + text extraction + chunking
-│   ├── query/              # Retrieval logic + RAG answer generation
-│   ├── ui/                 # Streamlit web interface
-│   └── utils/              # Helper utilities (embedding, file ops, etc.)
+│   ├── ingest/             # PDF loading, cleaning, text extraction, chunking
+│   ├── query/              # Retrieval + RAG answer generation
+│   ├── ui/                 # Streamlit interface
+│   └── utils/              # Embedding utils, file ops, common helpers
 ├── tests/                  # Fully mocked unit tests
 │   ├── test_ingest.py
 │   ├── test_index.py
 │   └── test_query.py
 └── requirements.txt
-
 
 ````
 
@@ -48,7 +52,7 @@ git clone https://github.com/faronmichal/multi_pdf_reader_with_langchain
 cd multi_pdf_reader_with_langchain
 ````
 
-### Create and activate virtual environment
+### Create & activate virtual environment
 
 ```bash
 python -m venv venv
@@ -76,14 +80,13 @@ pip install -r requirements.txt
 
 ## Environment Variables
 
-Create a `.env` file in the project root:
+Create a `.env` at the project root:
 
 ```
 OPENAI_API_KEY=sk-proj-...
 ```
 
-This is only required for real LLM calls.
-All tests run without this key.
+Required only for **real** LLM calls — tests run without it.
 
 ---
 
@@ -91,15 +94,11 @@ All tests run without this key.
 
 ### Streamlit Web Interface
 
-Launch the interactive app:
-
 ```bash
 streamlit run src/ui/app.py
 ```
 
-### CLI Interface
-
-Run a query directly from the terminal:
+### CLI Query Mode
 
 ```bash
 python src/query/query.py
@@ -109,15 +108,15 @@ python src/query/query.py
 
 ## Testing
 
-All tests are mocked, require no external services, and are safe for CI/CD.
+All tests use mocks (no FAISS building, no external APIs).
 
-Run the full test suite:
+Run the suite:
 
 ```bash
 pytest tests/
 ```
 
-Test coverage includes:
+Includes:
 
 * PDF ingestion & chunking (`test_ingest.py`)
 * Embedding + FAISS index logic (`test_index.py`)
@@ -125,12 +124,13 @@ Test coverage includes:
 
 ---
 
-## How the System Works
+## How It Works (Full Pipeline)
 
-1. **Upload PDFs** → Files saved to `data/raw_pdfs/`.
-2. **Ingestion** → PDFs parsed, cleaned, split into text chunks.
-3. **Embedding** → Text chunks embedded using configurable embedding models.
-4. **Indexing** → FAISS index created and saved to `data/indexes/`.
-5. **Querying** → User queries → top-k chunks retrieved via similarity search.
-6. **LLM Answering** → Model generates grounded answer with citations from chunks.
+1. **Upload PDFs** → stored in `data/raw_pdfs/`
+2. **Ingestion** → text extracted, cleaned, chunked
+3. **Embedding** → chunks → embedding vectors
+4. **Indexing** → FAISS index saved in `data/indexes/`
+5. **Query** → similarity search retrieves top-k chunks
+6. **LLM Answering** → grounded answer with citations
 
+---
