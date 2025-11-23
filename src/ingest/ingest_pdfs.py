@@ -34,13 +34,13 @@ def load_and_split_pdfs():
     return chunks
 
 def build_vectorstore(chunks):
-    print(" Creating embeddings (this may take a bit)...")
+    print("Creating embeddings")
     embeddings = OpenAIEmbeddings()
     vectorstore = FAISS.from_documents(chunks, embeddings)
     vectorstore.save_local(INDEX_DIR)
-    print(f" Vector index saved to: {INDEX_DIR}")
+    print(f"Vector index saved to: {INDEX_DIR}")
 
 if __name__ == "__main__":
     chunks = load_and_split_pdfs()
     build_vectorstore(chunks)
-    print("\n Ingestion complete.")
+    print("Ingestion complete.")

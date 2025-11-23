@@ -138,7 +138,7 @@ if query and "qa" in st.session_state:
 
     st.write("---")
 
-    if answer.strip() != "I don't know based on the documents.":
+    if answer.strip() != "I don't know based on the documents":
         st.write("Sources:")
         for s in sources:
             name = s.metadata.get("source", "unknown file")

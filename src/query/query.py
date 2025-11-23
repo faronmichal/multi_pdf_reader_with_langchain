@@ -59,8 +59,8 @@ def ask(question: str):
 
 
 if __name__ == "__main__":
-    print("\n multi-PDF research assistant ready.")
-    print("Type your question or type 'exit' to quit.\n")
+    print("multi-PDF research assistant ready")
+    print("Type your question or type 'exit' to quit")
 
     while True:
         q = input(" You: ")
@@ -73,13 +73,13 @@ if __name__ == "__main__":
         print(f"\n Answer:\n{answer}\n")
 
         # Only show sources if answer is real
-        if answer.strip() != "I don't know based on the documents.":
+        if answer.strip() != "I don't know based on the documents":
             print("Sources:")
             for s in sources:
                 source_name = s.metadata.get("source", "unknown file")
                 page = s.metadata.get("page", "?")
                 print(f" - {source_name} (page {page})")
         else:
-            print("No sources because the answer was not found in the documents.")
+            print("No sources because the answer was not found in the documents")
 
         print("\n" + "-"*60 + "\n")
