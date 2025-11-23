@@ -10,9 +10,7 @@ def clean_sys_modules():
         del sys.modules['src.query.query']
 
 def test_ask_function_returns_answer():
-    """
-    Tests the ask() function from src/query/query.py.
-    """
+    # Tests the ask() function from src/query/query.py.
     
     # Prepare the fake response
     mock_response = {
@@ -22,9 +20,6 @@ def test_ask_function_returns_answer():
         ]
     }
 
-    # KEY CHANGE: We patch the LIBRARIES directly.
-    # This prevents the real RetrievalQA code from ever running,
-    # bypassing the Pydantic validation error entirely.
     with patch('langchain_community.vectorstores.FAISS'), \
          patch('langchain_openai.OpenAIEmbeddings'), \
          patch('langchain_openai.ChatOpenAI'), \
