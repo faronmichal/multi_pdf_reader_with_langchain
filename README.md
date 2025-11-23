@@ -1,4 +1,3 @@
-```markdown
 # Multi-PDF Research Assistant
 
 ## Overview
@@ -21,7 +20,7 @@ Includes a Streamlit UI, CLI access, and a fully mocked test suite for safe, off
 
 ## Project Structure
 
-
+```markdown
 ├── configs/                # Configuration files for models and pipelines
 ├── data/
 │   ├── indexes/            # FAISS vector index files
